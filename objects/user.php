@@ -92,6 +92,34 @@ class User{
         return $stmt;
     }
 
+    // create user
+    function create(){
+    
+        // query to insert record
+        $query = "INSERT INTO
+                    " . $this->table_name . "
+                SET
+                    username=:username, password=:password";
+    
+        // prepare query
+        $stmt = $this->conn->prepare($query);
+    
+        // sanitize
+        //$this->username=htmlspecialchars(strip_tags($this->username));
+        //$this->password=htmlspecialchars(strip_tags($this->password));
+    
+        // bind values
+        $stmt->bindParam(":username", $this->username);
+        $stmt->bindParam(":password", $this->password);
+    
+        // execute query
+        if($stmt->execute()){
+            return true;
+        }
+    
+        return false;
+    }
+
     function is_exists($username) {
         // query to read single record
         $query = "SELECT
