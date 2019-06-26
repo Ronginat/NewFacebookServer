@@ -26,11 +26,11 @@ $like->post_id = isset($_GET['id']) ? $_GET['id'] : echo_err_and_die(400, "Missi
 // check if user exists
 $user = new User($db);
 if (!($user->is_exists($like->username))) {
-    echo_err_and_die(404, "User not exists.");
+    echo_err_and_die(500, "User not exists.");
 }
 // check if post exists
 if (!$post->is_exists($like->post_id)) {
-    echo_err_and_die(404, "Post not found.");
+    echo_err_and_die(500, "Post not found.");
 }
 
 if ($like->is_like()) {

@@ -41,7 +41,7 @@ if($user->password!=null){
     } else {
         // password not correct
         // set response code - 400 Bad Request
-        http_response_code(400);
+        http_response_code(500);
     
         // tell the user worng password
         echo json_encode(array("message" => "Wrong password."));    

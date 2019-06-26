@@ -51,12 +51,12 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
         // check if user exists
         $user = new User($db);
         if (!($user->is_exists($data->username))) {
-            echo_err_and_die(404, "User not exists.");
+            echo_err_and_die(500, "User not exists.");
         }
         // check if post exists
         $post = new Post($db);
         if (!($post->is_exists($data->post_id))) {
-            echo_err_and_die(404, "Post not exists.");
+            echo_err_and_die(500, "Post not exists.");
         }
     
         // set comment property values

@@ -19,7 +19,7 @@ $db = $database->getConnection();
 $user = new User($db);
  
 // get keywords
-$keywords=isset($_GET["s"]) ? $_GET["s"] : "";
+$keywords = isset($_GET["s"]) ? $_GET["s"] : "";
  
 // query users
 $stmt = $user->search($keywords);

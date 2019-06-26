@@ -26,7 +26,7 @@ $friend->user_res = isset($_GET['resUser']) ? $_GET['resUser'] : echo_err_and_di
 // check if both users exists
 $user = new User($db);
 if (!$user->is_exists($friend->user_req) || !$user->is_exists($friend->user_res)) {
-    echo_err_and_die(404, "User not exists.");
+    echo_err_and_die(500, "User not exists.");
 }
 
 // if users are friends, unfriend them, else make them friends

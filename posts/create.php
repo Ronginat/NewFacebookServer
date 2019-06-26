@@ -51,7 +51,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
         // check if user exists
         $user = new User($db);
         if (!($user->is_exists($data->username))) {
-            echo_err_and_die(404, "User not exists.");
+            echo_err_and_die(500, "User not exists.");
         }
      
         // set post property values

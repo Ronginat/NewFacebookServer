@@ -26,7 +26,7 @@ $user_res = isset($_GET['resUser']) ? $_GET['resUser'] : echo_err_and_die(400, "
 
 $user = new User($db);
 if (!$user->is_exists($user_req) || !$user->is_exists($user_res)) {
-    echo_err_and_die(404, "User not exists.");
+    echo_err_and_die(500, "User not exists.");
 }
 
 // initialize object

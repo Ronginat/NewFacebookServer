@@ -53,7 +53,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
                 echo json_encode(array("message" => "Unable to create user."));
             }
         } else {
-            echo_error_and_die(400, "Username is taken.");
+            echo_error_and_die(500, "Username is taken.");
         }
     } else {
         echo_error_and_die(400, "Unable to signup user. Data is incomplete.");

@@ -23,7 +23,7 @@ $username = isset($_GET['username']) ? $_GET['username'] : echo_err_and_die(400,
 // check if user exists
 $user = new User($db);
 if (!($user->is_exists($username))) {
-    echo_err_and_die(404, "User not exists.");
+    echo_err_and_die(500, "User not exists.");
 }
 
 if ($post->get_post_by_id()) {
@@ -42,7 +42,7 @@ if ($post->get_post_by_id()) {
             echo_err_and_die(500, "Unable to update this post.");
         }
     } else {
-        echo_err_and_die(401, "Can't edit other user's posts.");
+        echo_err_and_die(403, "Can't edit other user's posts.");
     }
 } else {
     echo_err_and_die(404, "Post not found.");

@@ -22,7 +22,7 @@ $post->username = isset($_GET['username']) ? $_GET['username'] : echo_err_and_di
 // check if user exists
 $user = new User($db);
 if (!($user->is_exists($post->username))) {
-    echo_err_and_die(404, "User not exists.");
+    echo_err_and_die(500, "User not exists.");
 }
  
 // query posts
