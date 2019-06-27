@@ -39,12 +39,12 @@ $post->username = $user_res;
 $stmt = $post->get_user_posts($user_req == $user_res, $user_req);
 $num = $stmt->rowCount();
  
+// posts array
+$posts_arr=array();
+$posts_arr["records"]=array();
+
 // check if more than 0 record found
-if($num > 0){
- 
-    // posts array
-    $posts_arr=array();
-    $posts_arr["records"]=array();
+if($num > 0) {
  
     // retrieve our table contents
     // fetch() is faster than fetchAll()
@@ -57,13 +57,14 @@ if($num > 0){
  
         $post_item=array(
             "id" => $id,
-            "username" => $username,
+            "author" => $username,
             "private" => $private > 0,
             "date" => $date,
             "content" => html_entity_decode($content),
             "likes" => (int) $likes,
-            "meLike" => $meLike > 0
-            //"images" => $images,
+            "meLike" => $meLike > 0,
+            "image" => $images,
+            "comments" => $comments
         );
  
         array_push($posts_arr["records"], $post_item);
@@ -77,13 +78,11 @@ if($num > 0){
 } else{
     // no posts found
  
-    // set response code - 404 Not found
-    http_response_code(404);
+    // set response code - 200 OK
+    http_response_code(200);
  
     // tell the user no products found
-    echo json_encode(
-        array("message" => "No posts found.")
-    );
+    echo json_encode($posts_arr);
 }
 
 function echo_err_and_die($error_code, $err_message) {

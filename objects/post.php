@@ -45,24 +45,42 @@ class Post{
         return $stmt;
     }
 
-    function get_feed_not_working() {
+    function get_feed() {
+        //GROUP_CONCAT(CONCAT('{ "id": "', id, '", "author": "', username, '", "date": "', `date`, '", "content":  "', content, '" }' ) SEPARATOR ', '), 
         $query = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
-                (SELECT 
-                    JSON_ARRAY(
-                        JSON_OBJECT(
-                            'id', c.id,
-                            'username' c.username,
-                            'date', c.date,
-                            'content', c.content
-                        )
-                    )
-                    FROM posts p2 LEFT JOIN comments c ON p2.id = c.post_id GROUP BY p.id
-                ) AS comments,
                 (SELECT COUNT(l2.username)
-                    FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike
+                    FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike,
+                ( SELECT 
+                    IFNULL(i.arr, CONCAT('[', ']')) AS arr
+                    FROM posts p1
+                    LEFT JOIN (
+                        SELECT
+                            post_id,                            
+                            CONCAT('[', GROUP_CONCAT(CONCAT('\"', `file_name`, '\"') SEPARATOR ', '), ']') AS arr
+                            FROM images
+                            GROUP BY post_id
+                    ) i ON p1.id = i.post_id
+                    WHERE p1.id = p.id
+                ) AS images,
+                ( SELECT 
+                    IFNULL(c.arr, CONCAT('[', ']')) AS arr
+                    FROM posts p2
+                    LEFT JOIN (
+                        SELECT
+                            post_id,                            
+                            CONCAT('[',
+                                    JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
+                                    ']'
+                                ) AS arr
+                            FROM comments
+                            GROUP BY post_id
+                    ) c ON p2.id = c.post_id
+                    WHERE p2.id = p.id
+                ) AS comments
+
                 FROM " . $this->table_name . " p
                 LEFT JOIN likes l
-                ON p.id = l.post_id
+                ON p.id = l.post_id                
                 WHERE
                     (p.username IN(SELECT f.user_res FROM friends f WHERE f.user_req = :username) AND p.private = 0)
                     OR
@@ -72,20 +90,7 @@ class Post{
                 ORDER BY
                     p.date DESC";
 
-        // prepare query statement
-        $stmt = $this->conn->prepare($query);
-    
-        // bind values
-        $stmt->bindParam(":username", $this->username);
-
-        // execute query
-        $stmt->execute();
-    
-        return $stmt;
-    }
-
-    function get_feed() {
-        $query = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
+        $query1 = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
                 (SELECT COUNT(l2.username)
                     FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike
                 FROM " . $this->table_name . " p
@@ -119,7 +124,34 @@ class Post{
         // select all query
         $query_private = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
                 (SELECT COUNT(l2.username)
-                    FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike
+                    FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike,
+                    ( SELECT 
+                    IFNULL(i.arr, CONCAT('[', ']')) AS arr
+                    FROM posts p1
+                    LEFT JOIN (
+                        SELECT
+                            post_id,                            
+                            CONCAT('[', GROUP_CONCAT(CONCAT('\"', `file_name`, '\"') SEPARATOR ', '), ']') AS arr
+                            FROM images
+                            GROUP BY post_id
+                    ) i ON p1.id = i.post_id
+                    WHERE p1.id = p.id
+                ) AS images,
+                ( SELECT 
+                    IFNULL(c.arr, CONCAT('[', ']')) AS arr
+                    FROM posts p2
+                    LEFT JOIN (
+                        SELECT
+                            post_id,                            
+                            CONCAT('[',
+                                    JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
+                                    ']'
+                                ) AS arr
+                            FROM comments
+                            GROUP BY post_id
+                    ) c ON p2.id = c.post_id
+                    WHERE p2.id = p.id
+                ) AS comments
                 FROM " . $this->table_name . " p
                 LEFT JOIN likes l
                 ON p.id = l.post_id
@@ -132,7 +164,34 @@ class Post{
 
         $query_public = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
                 (SELECT COUNT(l2.username)
-                    FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :reqUser) as meLike
+                    FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :reqUser) as meLike,
+                    ( SELECT 
+                    IFNULL(i.arr, CONCAT('[', ']')) AS arr
+                    FROM posts p1
+                    LEFT JOIN (
+                        SELECT
+                            post_id,                            
+                            CONCAT('[', GROUP_CONCAT(CONCAT('\"', `file_name`, '\"') SEPARATOR ', '), ']') AS arr
+                            FROM images
+                            GROUP BY post_id
+                    ) i ON p1.id = i.post_id
+                    WHERE p1.id = p.id
+                ) AS images,
+                ( SELECT 
+                    IFNULL(c.arr, CONCAT('[', ']')) AS arr
+                    FROM posts p2
+                    LEFT JOIN (
+                        SELECT
+                            post_id,                            
+                            CONCAT('[',
+                                    JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
+                                    ']'
+                                ) AS arr
+                            FROM comments
+                            GROUP BY post_id
+                    ) c ON p2.id = c.post_id
+                    WHERE p2.id = p.id
+                ) AS comments
                 FROM " . $this->table_name . " p
                 LEFT JOIN likes l
                 ON p.id = l.post_id

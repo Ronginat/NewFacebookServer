@@ -30,12 +30,12 @@ $stmt = $post->get_feed();
 //error_log(print_r(json_encode($stmt->fetch(PDO::FETCH_ASSOC)), TRUE));
 $num = $stmt->rowCount();
  
+// posts array
+$posts_arr=array();
+$posts_arr["records"]=array();
+
 // check if more than 0 record found
 if($num > 0){
- 
-    // posts array
-    $posts_arr=array();
-    $posts_arr["records"]=array();
  
     // retrieve our table contents
     // fetch() is faster than fetchAll()
@@ -44,17 +44,17 @@ if($num > 0){
         // extract row
         // this will make $row['name'] to
         // just $name only
-        //error_log(print_r(json_encode($row), TRUE));
         extract($row);
         $post_item=array(
             "id" => $id,
-            "username" => $username,
+            "author" => $username,
             "private" => $private > 0,
             "date" => $date,
             "content" => html_entity_decode($content),
             "likes" => (int) $likes,
-            "meLike" => $meLike > 0
-            //"images" => $images,
+            "meLike" => $meLike > 0,
+            "image" => $images,
+            "comments" => $comments
         );
  
         array_push($posts_arr["records"], $post_item);
@@ -67,14 +67,13 @@ if($num > 0){
     echo json_encode($posts_arr);
 } else{
     // no posts found
+    // return an empty array
  
-    // set response code - 404 Not found
-    http_response_code(404);
+    // set response code - 200 OK
+    http_response_code(200);
  
-    // tell the user no products found
-    echo json_encode(
-        array("message" => "No posts found.")
-    );
+    // tell the user no posts found
+    echo json_encode($posts_arr);
 }
 
 function echo_err_and_die($error_code, $err_message) {

@@ -27,13 +27,13 @@ $comment->post_id = isset($_GET['post_id']) ? $_GET['post_id'] : echo_err_and_di
 $stmt = $comment->read();
 $num = $stmt->rowCount();
  
+// comments array
+$comments_arr=array();
+$comments_arr["records"]=array();
+
 // check if more than 0 record found
-if($num > 0){
- 
-    // comments array
-    $comments_arr=array();
-    $comments_arr["records"]=array();
- 
+if($num > 0) {
+  
     // retrieve our table contents
     // fetch() is faster than fetchAll()
     // http://stackoverflow.com/questions/2770630/pdofetchall-vs-pdofetch-in-a-loop
@@ -46,7 +46,7 @@ if($num > 0){
         $comment_item=array(
             "id" => $id,
             "post_id" => $post_id,
-            "username" => $username,
+            "author" => $username,
             "date" => $date,
             "content" => $content,
             //"description" => html_entity_decode($description),
@@ -63,13 +63,11 @@ if($num > 0){
 } else{
     // no comments found
  
-    // set response code - 404 Not found
-    http_response_code(404);
+    // set response code - 200 OK
+    http_response_code(200);
  
     // tell the comment no products found
-    echo json_encode(
-        array("message" => "No comments found.")
-    );
+    echo json_encode($comments_arr);
 }
 
 function echo_err_and_die() {
