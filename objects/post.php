@@ -80,7 +80,6 @@ class Post{
                     ) c ON p2.id = c.post_id
                     WHERE p2.id = p.id
                 ) AS comments
-
                 FROM " . $this->table_name . " p
                 LEFT JOIN likes l
                 ON p.id = l.post_id                
@@ -187,7 +186,7 @@ class Post{
                         SELECT
                             post_id,                            
                             CONCAT('[',
-                                    JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
+                                GROUP_CONCAT(CONCAT('{ \"id\": \"', id, '\", \"author\": \"', username, '\", \"date\": \"', `date`, '\", \"content\":  \"', content, '\" }' ) SEPARATOR ', '), 
                                     ']'
                                 ) AS arr
                             FROM comments
@@ -277,7 +276,7 @@ class Post{
         return false;
     }
 
-    function get_last_inserted_post_by_id() {
+    function populate_object_with_post_by_id() {
         // query to read single record
         $query = "SELECT
                     *
@@ -305,16 +304,66 @@ class Post{
 
          // set values to object properties
         $this->id = $row['id'];
-        $this->username = null;
-        $this->author = $row['username'];
+        $this->username = $row['username'];
         $this->date = $row['date'];
         $this->private = $row['private'] > 0;
         $this->content = $row['content'];
-        $this->images = array();
+        /* $this->images = array();
         $this->likes = 0;
         $this->meLike = false;
-        $this->comments = array();
+        $this->comments = array(); */
         return true;
+    }
+
+    function get_post_by_id() {
+        // query to read single record
+        $query = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
+        (SELECT COUNT(l2.username)
+            FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike,
+            ( SELECT 
+            IFNULL(i.arr, CONCAT('[', ']')) AS arr
+            FROM posts p1
+            LEFT JOIN (
+                SELECT
+                    post_id,                            
+                    CONCAT('[', GROUP_CONCAT(CONCAT('\"', `file_name`, '\"') SEPARATOR ', '), ']') AS arr
+                    FROM images
+                    GROUP BY post_id
+            ) i ON p1.id = i.post_id
+            WHERE p1.id = p.id
+        ) AS images,
+        ( SELECT 
+            IFNULL(c.arr, CONCAT('[', ']')) AS arr
+            FROM posts p2
+            LEFT JOIN (
+                SELECT
+                    post_id,                            
+                    CONCAT('[',
+                        GROUP_CONCAT(CONCAT('{ \"id\": \"', id, '\", \"author\": \"', username, '\", \"date\": \"', `date`, '\", \"content\":  \"', content, '\" }' ) SEPARATOR ', '), 
+                            ']'
+                        ) AS arr
+                    FROM comments
+                    GROUP BY post_id
+            ) c ON p2.id = c.post_id
+            WHERE p2.id = p.id
+        ) AS comments
+        FROM " . $this->table_name . " p
+        LEFT JOIN likes l
+        ON p.id = l.post_id
+        WHERE
+            p.id = :id";
+ 
+        // prepare query statement
+        $stmt = $this->conn->prepare( $query );
+    
+        // bind id of user to be updated
+        $stmt->bindParam(":id", $this->id);
+        $stmt->bindParam(":username", $this->username);
+    
+        // execute query
+        $stmt->execute();
+
+        return $stmt;
     }
 
     function is_exists($id) {

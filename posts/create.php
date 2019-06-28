@@ -68,8 +68,19 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
             
             $res = array();
             $res['message'] = "Post was created.";
-            $post->get_last_inserted_post_by_id();
-            $res['post'] = $post;
+            $data = $post->get_post_by_id()->fetch(PDO::FETCH_ASSOC);
+            extract($data);
+            $res['post'] = array(
+                "id" => $id,
+                "author" => $username,
+                "private" => $private > 0,
+                "date" => $date,
+                "content" => html_entity_decode($content),
+                "likes" => (int) $likes,
+                "meLike" => $meLike > 0,
+                "image" => $images,
+                "comments" => $comments
+            );
             echo json_encode($res);
      
             // tell the user

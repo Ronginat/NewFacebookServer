@@ -26,17 +26,35 @@ if (!($user->is_exists($username))) {
     echo_err_and_die(500, "User not exists.");
 }
 
-if ($post->get_post_by_id()) {
+if ($post->populate_object_with_post_by_id()) {
     // compare given username with post username
     if($username === $post->username) {
         // can edit post private attribute
         if ($post->update_privacy()) {
             // post updated
+            $res = array();
+            $res['message'] = "Post was updated.";
+            $data = $post->get_post_by_id()->fetch(PDO::FETCH_ASSOC);
+            extract($data);
+
+            $res['post'] = array(
+                "id" => $id,
+                "author" => $username,
+                "private" => $private > 0,
+                "date" => $date,
+                "content" => html_entity_decode($content),
+                "likes" => (int) $likes,
+                "meLike" => $meLike > 0,
+                "image" => $images,
+                "comments" => $comments
+            );
+
             // set response code - 200 ok
             http_response_code(200);
     
             // tell the user
-            echo json_encode(array("message" => "Post was updated."));
+            echo json_encode($res);
+            //echo json_encode(array("message" => "Post was updated."));
 
         } else{
             echo_err_and_die(500, "Unable to update this post.");
