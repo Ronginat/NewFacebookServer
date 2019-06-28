@@ -14,7 +14,8 @@ class Post{
     public $likes;
     public $meLike;
     public $comments;
-    //public $images;
+    public $images;
+    public $author;
  
     // constructor with $db as database connection
     public function __construct($db){
@@ -47,6 +48,8 @@ class Post{
 
     function get_feed() {
         //GROUP_CONCAT(CONCAT('{ "id": "', id, '", "author": "', username, '", "date": "', `date`, '", "content":  "', content, '" }' ) SEPARATOR ', '), 
+        //GROUP_CONCAT(CONCAT('{ \"id\": \"', id, '\", \"author\": \"', username, '\", \"date\": \"', `date`, '\", \"content\":  \"', content, '\" }' ) SEPARATOR ', '), 
+        //JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
         $query = "SELECT p.id, p.username, p.private, p.date, p.content, COUNT(l.post_id) AS likes, 
                 (SELECT COUNT(l2.username)
                     FROM likes l2 WHERE l2.post_id = p.id AND l2.username = :username) as meLike,
@@ -69,7 +72,7 @@ class Post{
                         SELECT
                             post_id,                            
                             CONCAT('[',
-                                    JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
+                                GROUP_CONCAT(CONCAT('{ \"id\": \"', id, '\", \"author\": \"', username, '\", \"date\": \"', `date`, '\", \"content\":  \"', content, '\" }' ) SEPARATOR ', '), 
                                     ']'
                                 ) AS arr
                             FROM comments
@@ -144,7 +147,7 @@ class Post{
                         SELECT
                             post_id,                            
                             CONCAT('[',
-                                    JSON_OBJECT('id', id, 'author', username, 'date', `date`, 'content', content),
+                                GROUP_CONCAT(CONCAT('{ \"id\": \"', id, '\", \"author\": \"', username, '\", \"date\": \"', `date`, '\", \"content\":  \"', content, '\" }' ) SEPARATOR ', '), 
                                     ']'
                                 ) AS arr
                             FROM comments
@@ -238,11 +241,12 @@ class Post{
         $stmt->bindParam(":content", $this->content);
     
         // execute query
-        if($stmt->execute()){
-            return true;
+        if(!$stmt->execute()){
+            return false;
         }
     
-        return false;
+        $this->id = $this->conn->lastInsertId();
+        return true;
     }
 
     // update post private flag
@@ -273,7 +277,7 @@ class Post{
         return false;
     }
 
-    function get_post_by_id() {
+    function get_last_inserted_post_by_id() {
         // query to read single record
         $query = "SELECT
                     *
@@ -301,10 +305,15 @@ class Post{
 
          // set values to object properties
         $this->id = $row['id'];
-        $this->username = $row['username'];
+        $this->username = null;
+        $this->author = $row['username'];
         $this->date = $row['date'];
         $this->private = $row['private'] > 0;
         $this->content = $row['content'];
+        $this->images = array();
+        $this->likes = 0;
+        $this->meLike = false;
+        $this->comments = array();
         return true;
     }
 

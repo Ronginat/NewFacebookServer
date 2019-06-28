@@ -66,12 +66,17 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
      
         // create the comment
         if($comment->create()){
+            $comment->get_by_id();
+            $res = array();
+            $res['message'] = "Comment was created.";
+            $res['comment'] = $comment;
      
             // set response code - 201 created
             http_response_code(201);
      
             // tell the user
-            echo json_encode(array("message" => "Comment was created."));
+            //echo json_encode(array("message" => "Comment was created."));
+            echo json_encode($res);
         }
      
         // if unable to create the comment, tell the user

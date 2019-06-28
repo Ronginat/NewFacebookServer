@@ -11,6 +11,7 @@ class Comment{
     public $username;
     public $date;
     public $content;
+    public $author;
  
     // constructor with $db as database connection
     public function __construct($db){
@@ -65,11 +66,46 @@ class Comment{
         $stmt->bindParam(":content", $this->content);
     
         // execute query
-        if($stmt->execute()){
-            return true;
+        if(!$stmt->execute()){
+            return false;
         }
     
-        return false;
-        
+        $this->id = $this->conn->lastInsertId();
+        return true;
+    }
+
+    function get_by_id() {
+        // query to read single record
+        $query = "SELECT
+                    *
+                FROM
+                    " . $this->table_name . "                    
+                WHERE
+                    id = ?";
+ 
+        // prepare query statement
+        $stmt = $this->conn->prepare( $query );
+    
+        // bind id of user to be updated
+        $stmt->bindParam(1, $this->id);
+    
+        // execute query
+        $stmt->execute();
+
+        if (!$stmt->rowCount() > 0) {
+            // false means that post not exists
+            return false;
+        }
+    
+        // get retrieved row
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+         // set values to object properties
+        $this->id = $row['id'];
+        $this->username = null;
+        $this->author = $row['username'];
+        $this->date = $row['date'];
+        $this->content = $row['content'];
+        return true;
     }
 }

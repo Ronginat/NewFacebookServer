@@ -65,9 +65,15 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
      
             // set response code - 201 created
             http_response_code(201);
+            
+            $res = array();
+            $res['message'] = "Post was created.";
+            $post->get_last_inserted_post_by_id();
+            $res['post'] = $post;
+            echo json_encode($res);
      
             // tell the user
-            echo json_encode(array("message" => "Post was created."));
+            //echo json_encode(array("message" => "Post was created."));
         }
      
         // if unable to create the post, tell the user
