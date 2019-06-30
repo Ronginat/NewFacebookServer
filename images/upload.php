@@ -78,7 +78,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
     $image->file_name = $timestamp . '.' . $extension;
 
     
-    $target_file = "uploads\\" . $image->file_name;
+    $target_file = "images\\uploads\\" . $image->file_name;
     if (move_uploaded_file($fileToUpload['tmp_name'], $target_file)) {
         $res = array();
         $res['message'] = "The file ". basename( $originFileName). " has been uploaded.";
