@@ -31,22 +31,6 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
    
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
-
-    /* $res = array();
-    $res['files'] = $_FILES['image']['name'];
-    $res['params'] = $_GET;
-    
-    $target_file = "uploads\\" . basename($_FILES['image']['name']);
-
-    if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-        $res['message'] = "The file ". basename( $_FILES["image"]["name"]). " has been uploaded.";
-    } else {
-        $res['message'] = "Sorry, there was an error uploading your file.";
-    }
-
-    http_response_code(200);
-    echo json_encode($res);
-    exit(0); */
  
     // get database connection
     $database = new Database();
@@ -78,11 +62,11 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
     $image->file_name = $timestamp . '.' . $extension;
 
     
-    $target_file = "images\\uploads\\" . $image->file_name;
+    $target_file = "uploads\\" . $image->file_name;
     if (move_uploaded_file($fileToUpload['tmp_name'], $target_file)) {
         $res = array();
         $res['message'] = "The file ". basename( $originFileName). " has been uploaded.";
-        $res['url'] = $target_file;
+        $res['url'] = "images\\" . $target_file;
 
         if ($image->post_image()) {
             //$res['message'] = "The file ". basename( $_FILES["image"]["name"]). " has been uploaded.";
