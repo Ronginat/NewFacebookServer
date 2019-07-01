@@ -57,7 +57,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
         echo_err_and_die(500, "Post not exists.");
     }
 
-    $timestamp = $_SERVER['REQUEST_TIME'];
+    $timestamp = round(microtime(true) * 1000);//$_SERVER['REQUEST_TIME'];
     $extension = explode('.', $originFileName)[1];
     $image->file_name = $timestamp . '.' . $extension;
 
@@ -82,7 +82,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
             http_response_code(500);
         
             // tell the user
-            echo json_encode(array("message" => "Unable to save image name to db."));
+            echo json_encode(array("message" => "Unable to save image name to db. " . $originFileName));
         }
 
     } else {
