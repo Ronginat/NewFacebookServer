@@ -100,8 +100,8 @@ class Friend{
         $stmt = $this->conn->prepare($query);
     
         // sanitize
-        $this->usename_req=htmlspecialchars(strip_tags($this->user_req));
-        $this->usename_res=htmlspecialchars(strip_tags($this->user_res));
+        $this->user_req=htmlspecialchars(strip_tags($this->user_req));
+        $this->user_res=htmlspecialchars(strip_tags($this->user_res));
     
         // bind id of record to delete
         $stmt->bindParam(":user1", $this->user_req);
