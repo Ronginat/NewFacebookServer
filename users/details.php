@@ -40,7 +40,10 @@ http_response_code(200);
 $res = array();
 
 $res['friends'] = $friend->are_friends();
-$res['invite'] = $invitation->did_invite();
+$res['invited'] = $invitation->did_invite();
+$invitation->sender = $_GET['reqUser']; // current user
+$invitation->receiver = $_GET['resUser']; // 
+$res['inviting'] = $invitation->did_invite();
 
 // tell the user
 echo json_encode($res);
