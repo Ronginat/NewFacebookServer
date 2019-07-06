@@ -10,6 +10,7 @@ http_response_code(400);
 // include database and object files
 include_once '../config/database.php';
 include_once '../objects/user.php';
+include_once '../objects/friend.php';
 include_once '../objects/game.php';
  
 // get database connection
@@ -27,6 +28,14 @@ $invitation->receiver = isset($_GET['resUser']) ? $_GET['resUser'] : echo_err_an
 $user = new User($db);
 if (!$user->is_exists($invitation->sender) || !$user->is_exists($invitation->receiver)) {
     echo_err_and_die(500, "User not exists.");
+}
+
+$friend = new Friend($db);
+$friend->user_req = $_GET['reqUser'];
+$friend->user_res = $_GET['resUser'];
+
+if (!$friend->are_friends()) {
+    echo_err_and_die(500, "You can invite only friends, please add this user to your friends list");
 }
 
 // if users are friends, unfriend them, else make them friends
@@ -73,6 +82,6 @@ if ($invitation->did_invite()) {
 function echo_err_and_die($error_code, $err_message) {
     http_response_code($error_code);
     echo json_encode(array("message" => $err_message));
-    die();
+    exit(0);
 }
 ?>
