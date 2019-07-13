@@ -26,11 +26,11 @@ $inputPassword = isset($_GET['password']) ? $_GET['password'] : echo_error_and_d
 $user->readOne();
  
 if($user->password!=null){
-    if($user->password==$inputPassword){   
+    if($user->password == calculate_password($inputPassword)){   
         // create array
         $user_arr = array(
-            "username" =>  $user->username,
-            "password" => $user->password
+            "username" =>  $user->username
+            //"password" => $user->password
         );
     
         // set response code - 200 OK
@@ -54,6 +54,13 @@ else{
  
     // tell the user user does not exist
     echo json_encode(array("message" => "User does not exist."));
+}
+
+/* Returns the encrypted password of the given string. */
+function calculate_password($pass) {
+    $pass=$pass[0].$pass.$pass[0]; // 12345-->123455
+    $pass=md5($pass);
+    return $pass;
 }
 
 function echo_error_and_die() {

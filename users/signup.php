@@ -36,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
         // prepare user object
         $user = new User($db);
         $user->username = $data->username;
-        $user->password = $data->password;
+        $user->password = calculate_password($data->password);
 
         if (!$user->is_exists($user->username)) {
             if ($user->create()) {
@@ -58,6 +58,13 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
     } else {
         echo_error_and_die(400, "Unable to signup user. Data is incomplete.");
     }
+}
+
+/* Returns the encrypted password of the given string. */
+function calculate_password($pass) {
+    $pass=$pass[0].$pass.$pass[0]; // 12345-->123455
+    $pass=md5($pass);
+    return $pass;
 }
 
 function echo_error_and_die($code, $message) {
